@@ -1,67 +1,92 @@
 import pandas as pd
 import re
+import numpy as np
+# Counter wird für diese Version nicht mehr benötigt
 
+def get_song_data(filePath, targetWords):
 
-def count_words(filepath, target_words):
-    #load file
-    with open(filepath, 'r', encoding='latin1') as f:
-        #remove header
-        f.readline()
+    df = pd.read_csv(filePath, delimiter=';', header=None, names=["id", "lyrics"], encoding="latin1")
 
-        full_text = f.read()
-    #convert all word to lower case
-    all_text_lower = full_text.lower()
-    #tokenize words
-    words = re.findall(r'\b\w+\b', all_text_lower)
-    #count all words
-    all_words_nr = len(words)
-    #turn list into pandas column
-    word_series = pd.Series(words)
-    #filter out the words we want to count
-    target_word_series = word_series[word_series.isin(target_words)]
-    #count the words
-    word_counts = target_word_series.value_counts()
-    #make sure that all target words are returned, especially the ones that have 0 occurences
-    final_counts = word_counts.reindex(target_words, fill_value=0)
+    # NA as text
+    songs = df["lyrics"].astype(str).tolist()
 
-    return final_counts,all_words_nr
+    # N from the equation
+    number_songs = len(songs)
+    
+    # tokenize all songs
+    all_songs_words = [re.findall(r'\b\w+\b', song.lower()) for song in songs]
+    
+    # calculate n(i)
+    all_songs_sets = [set(words) for words in all_songs_words] 
+    
+    word_data = {}
+    for word in targetWords:
+        # calculate freq(i, j) for all j
+        # list of occurences where index j is the occurence of word i in song j
+        freq_ij_List = [words.count(word) for words in all_songs_words]
+         
+        # calculate normalisation factor,occurence of i in all songs
+        freq_i_AllSongs = sum(freq_ij_List)
+        
+        # calculate n(i)
+        n_i = sum(1 for song_set in all_songs_sets if word in song_set)
+
+        # safe all data for the word i
+        word_data[word] = {
+            "freq_i_AllSongs": freq_i_AllSongs, 
+            "n_i": n_i,                         
+            "freq_ij_List": freq_ij_List        
+        }
+        
+    return word_data, number_songs
 
 if __name__ == "__main__":
 
-    FILE_PATH = 'data/lyrics50.csv'
-    TARGET_WORDS = ['always', 'but', 'christmas', 'city', 'feel', 'love', 'think', 'you', 'world', 'yeah']
+    filePath = "data/lyrics50.csv"
+    targetWords = ["always", "but", "christmas", "city", "feel", "love", "think", "you", "world", "yeah"]
 
-    #get pandas series where every words has its occurence nr next to it
-    counts,all_words_nr = count_words(FILE_PATH, TARGET_WORDS)
+    #get data from lyrics50 file
+    word_data, number_songs = get_song_data(filePath, targetWords)
 
-    #calculate tf for every entry in counts series
-    tf = counts/all_words_nr
+    # calculate IDF
+    idf_values = {}
+    for word in targetWords:
+        n_i = word_data[word]["n_i"]
+        
+        if n_i > 0:
+            idf_values[word] = np.log(number_songs / n_i)
+        else:
+            idf_values[word] = 0.0
 
-    #calculate idf, but we have only one document, where every word is contained so log(1/1) = 0
-    idf = 0
+    #calculate TF-IDF
+    #create panda series to save solution values
+    final_tf_idf = pd.Series(0.0, index=targetWords)
+    
+    # iterate over number of songs
+    for j in range(number_songs):
+        
+        #iterate over every targetword i
+        for word in targetWords:
+            data = word_data[word]
+            
+            #calculate TF
+            
+            freq_ij = data["freq_ij_List"][j]
+            
+            freq_i_AllSongs = data["freq_i_AllSongs"]
+            
+            tf = 0.0
+            if freq_i_AllSongs:
+                tf = freq_ij / freq_i_AllSongs
+            
+            idf = idf_values[word]
+            
+            # calculate TF-IDF
+            tf_idf_res = tf * idf
+            # add current tf idf result to final solution
+            final_tf_idf[word] += tf_idf_res
 
-    #calculate tf -df
-    tf_idf = tf * idf
-
-    #print solutions
-    print("target words:")
-    print(TARGET_WORDS)
-    print("")
-    print("from:")
-    print(FILE_PATH)
-    print("")
-    print("Term Frequencies (TF) for every target word")
-    print(tf)
-    print("")
-    print("Inverse Document Frequency (IDF), Note: for every target word holds log(1/1) = 0 here")
-    print(idf)
-    print("")
-    print("!!!!SOLUTION OF TF*IDF!!!!")
-    print(tf_idf)
-
-
-
-
-
-
-
+    print("TF-IDF Results (Sum over all Songs)")
+    tf_idf_sorted = final_tf_idf.sort_values(ascending=False)
+    print(tf_idf_sorted)
+  
