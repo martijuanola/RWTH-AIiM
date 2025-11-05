@@ -1,5 +1,6 @@
-import pandas as pd
 import re
+
+import pandas as pd
 
 
 def count_words(filepath, target_words):
@@ -24,18 +25,18 @@ def count_words(filepath, target_words):
     #make sure that all target words are returned, especially the ones that have 0 occurences
     final_counts = word_counts.reindex(target_words, fill_value=0)
 
-    return final_counts,all_words_nr
+    return final_counts, all_words_nr
+
 
 if __name__ == "__main__":
-
     FILE_PATH = 'data/lyrics50.csv'
     TARGET_WORDS = ['always', 'but', 'christmas', 'city', 'feel', 'love', 'think', 'you', 'world', 'yeah']
 
     #get pandas series where every words has its occurence nr next to it
-    counts,all_words_nr = count_words(FILE_PATH, TARGET_WORDS)
+    counts, all_words_nr = count_words(FILE_PATH, TARGET_WORDS)
 
     #calculate tf for every entry in counts series
-    tf = counts/all_words_nr
+    tf = counts / all_words_nr
 
     #calculate idf, but we have only one document, where every word is contained so log(1/1) = 0
     idf = 0
@@ -58,10 +59,3 @@ if __name__ == "__main__":
     print("")
     print("!!!!SOLUTION OF TF*IDF!!!!")
     print(tf_idf)
-
-
-
-
-
-
-
