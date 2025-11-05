@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 import numpy as np
-# Counter wird für diese Version nicht mehr benötigt
+
 
 def get_song_data(filePath, targetWords):
 
