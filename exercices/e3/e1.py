@@ -18,10 +18,12 @@ if __name__ == "__main__":
     #plot everything
     plt.figure()
     ax = plt.subplot(1,1,1)
+    ax.set_facecolor("#333333")
 
-    librosa.display.waveshow(y, sr=sr, ax=ax)
+
+    librosa.display.waveshow(y, sr=sr, ax=ax, alpha = 0.8)
     
-    ax.vlines(onset_times, -1, 1, linestyle='-',alpha = 0.25,color="orange")
+    ax.vlines(onset_times, -1, 1, linestyle="-",alpha = 0.05,color="yellow")
     ax.set_xlabel("time in seconds")
     ax.set_ylabel("amplitude")
 
