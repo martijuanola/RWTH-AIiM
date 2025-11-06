@@ -1,7 +1,6 @@
 import pandas as pd
 import re
 import numpy as np
-# Counter wird für diese Version nicht mehr benötigt
 
 def get_song_data(filePath, targetWords):
 
@@ -89,4 +88,8 @@ if __name__ == "__main__":
     print("TF-IDF Results (Sum over all Songs)")
     tf_idf_sorted = final_tf_idf.sort_values(ascending=False)
     print(tf_idf_sorted)
+<<<<<<< HEAD
   
+=======
+  
+>>>>>>> bbcefeddbca928f7f32708fd5fcbc340715e20e8
