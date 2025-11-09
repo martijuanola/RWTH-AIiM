@@ -2,16 +2,16 @@ import librosa
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    #load file
+    # load file
     filepath = "data/classical.mp3"
     y, sr = librosa.load(filepath)
 
-    #get onsets and their times
+    # get onsets and their times
     onsets = librosa.onset.onset_detect(y=y, sr=sr)
     onset_times = librosa.frames_to_time(onsets, sr=sr)
     print(onset_times)
 
-    #plot everything
+    # plot everything
     plt.figure()
     ax = plt.subplot(1, 1, 1)
     ax.set_facecolor("#333333")
