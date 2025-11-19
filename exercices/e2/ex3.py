@@ -1,6 +1,8 @@
-import pandas as pd
 import re
+
 import numpy as np
+import pandas as pd
+
 
 def get_song_data(filePath, targetWords):
 
@@ -44,42 +46,42 @@ if __name__ == "__main__":
     filePath = "data/lyrics50.csv"
     targetWords = ["always", "but", "christmas", "city", "feel", "love", "think", "you", "world", "yeah"]
 
-    #get data from lyrics50 file
+    # get data from lyrics50 file
     word_data, number_songs = get_song_data(filePath, targetWords)
 
     # calculate IDF
     idf_values = {}
     for word in targetWords:
         n_i = word_data[word]["n_i"]
-        
+
         if n_i > 0:
             idf_values[word] = np.log(number_songs / n_i)
         else:
             idf_values[word] = 0.0
 
-    #calculate TF-IDF
-    #create panda series to save solution values
+    # calculate TF-IDF
+    # create panda series to save solution values
     final_tf_idf = pd.Series(0.0, index=targetWords)
-    
+
     # iterate over number of songs
     for j in range(number_songs):
-        
-        #iterate over every targetword i
+
+        # iterate over every targetword i
         for word in targetWords:
             data = word_data[word]
-            
-            #calculate TF
-            
+
+            # calculate TF
+
             freq_ij = data["freq_ij_List"][j]
-            
+
             freq_i_AllSongs = data["freq_i_AllSongs"]
-            
+
             tf = 0.0
             if freq_i_AllSongs:
                 tf = freq_ij / freq_i_AllSongs
-            
+
             idf = idf_values[word]
-            
+
             # calculate TF-IDF
             tf_idf_res = tf * idf
             # add current tf idf result to final solution
@@ -88,8 +90,3 @@ if __name__ == "__main__":
     print("TF-IDF Results (Sum over all Songs)")
     tf_idf_sorted = final_tf_idf.sort_values(ascending=False)
     print(tf_idf_sorted)
-<<<<<<< HEAD
-  
-=======
-  
->>>>>>> bbcefeddbca928f7f32708fd5fcbc340715e20e8
