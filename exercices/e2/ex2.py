@@ -1,8 +1,6 @@
 import librosa
 import matplotlib.pyplot as plt
 
-# import numpy as np
-
 
 def get_axis(arr):
     return arr[:-1], arr[1:]
